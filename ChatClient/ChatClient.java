@@ -6,6 +6,8 @@ import java.awt.Component;
 import java.awt.Dimension;
 import java.io.*;
 
+import javax.swing.JButton;
+
 import widgets.*;
 
 public class ChatClient {
@@ -108,6 +110,12 @@ public class ChatClient {
 			((Widget)object).setName(String.valueOf(m.getMsgid()));
 			((Widget)object).addMouseListener(gui.widgetListener);
 			((Widget)object).addMouseMotionListener(gui.widgetListener);
+			
+			/* Add new button */
+			String s = m.getType().substring(0, m.getType().length() - 6);
+			if (gui.widgetList.indexOf(s) == -1) {
+				gui.addBtn(s);
+			}
 		} catch (ClassNotFoundException e) {
 			e.printStackTrace();
 		} catch (InstantiationException e) {
@@ -117,7 +125,7 @@ public class ChatClient {
 		}
 		gui.whiteboard.add(((Widget)object));
 		gui.whiteboardResize();
-		gui.boardScroll.repaint();
+		gui.whiteboard.repaint();
 	}
 	
 	public void showPostLog() {
