@@ -1,9 +1,11 @@
 package ChatClient;
 
 import java.io.*;
+import java.util.ArrayList;
 import java.awt.*;
 import java.awt.event.*;
 import javax.swing.*;
+
 import widgets.*;
 
 public class ChatClientGUI implements ActionListener {
@@ -13,33 +15,36 @@ public class ChatClientGUI implements ActionListener {
 	private int shift_y;
 	
 	/* GUI */
-	public ChatClient chatClient = null;
-	public JTextArea chatArea = null;
-	public JTextField cTextField = null;
-	public JPanel whiteboard = null;
-	public JScrollPane chatScroll = null;
-	public JScrollPane boardScroll = null;
-	public JLabel clabel = null;
-	public JButton b1 = null;
-	public JButton b2 = null;
-	public JButton b3 = null;
-	public JButton b4 = null;
+	ChatClient chatClient;
+	JPanel whiteboard;
+	JScrollPane boardScroll;
+	JPanel btnPanel;
+	JScrollPane btnScroll;
+	JTextArea chatArea;
+	JScrollPane chatScroll;
+	JLabel clabel;
+	JTextField cTextField;
+	JButton b1;
+	JButton b2;
+	JButton b3;
 	
-	public String type = "";
-	public int moveObjId = -1;
+	String type = "";
+	int moveObjId = -1;
+	
+	ArrayList<String> widgetList = new ArrayList<String>();
 	
 	/* Constructor */
 	public ChatClientGUI() {
 		frame = new JFrame("ChatClient");
+		widgetList.add("Rectangle");
+		widgetList.add("Juggler");
+		widgetList.add("Circle");
 		buidUI();
 		cTextField.addActionListener(this);
 		whiteboard.addMouseListener(whiteboardListener);
-		b1.addActionListener(btnListener);
-		b2.addActionListener(btnListener);
-		b3.addActionListener(btnListener);
-		//b4.addActionListener(btnListener);
 	}
 
+	/* Receive input cmd */
 	public void actionPerformed(ActionEvent action) {
 		String input = cTextField.getText().trim();
 		cTextField.setText("");
@@ -102,32 +107,25 @@ public class ChatClientGUI implements ActionListener {
 		frame.getContentPane().add(boardScroll, c);
 		// End whiteboard
 		
-		/* Four button */
-		b1 = new JButton("Rectangle");
-		b1.setPreferredSize(new Dimension(150, 75));
+		/* Widget button panel */
+		btnPanel = new JPanel(new GridLayout(0, 1), true);
+		btnPanel.setPreferredSize(new Dimension(100, 150));
+		btnScroll = new JScrollPane(btnPanel);
+		
+		for (String s : widgetList) {
+			JButton btn = new JButton(s);
+			btnPanel.add(btn);
+			btn.addActionListener(btnListener);
+		}
+
 		c.gridx = 5;
 		c.gridwidth = 1;
-		c.gridheight = 1;
-		frame.getContentPane().add(b1, c);
-		
-		b2 = new JButton("Juggler");
-		b2.setPreferredSize(new Dimension(150, 75));
-		c.gridy = 1;
-		frame.getContentPane().add(b2, c);
-		
-		b3 = new JButton("Circle");
-		b3.setPreferredSize(new Dimension(150, 75));
-		c.gridy = 2;
-		frame.getContentPane().add(b3, c);
-		
-		b4 = new JButton("Timer");
-		b4.setPreferredSize(new Dimension(150, 75));
-		c.gridy = 3;
-		frame.getContentPane().add(b4, c);
+		c.gridheight = 4;
+		frame.getContentPane().add(btnScroll, c);
 		// End four button
 
 		/* Chat region */
-		chatArea = new JTextArea("Username: ", 10, 20);
+		chatArea = new JTextArea("Username: ", 10, 15);
 		chatArea.setEditable(false);
 		chatArea.setAutoscrolls(true);
 		chatArea.setBackground(Color.LIGHT_GRAY);
@@ -149,7 +147,7 @@ public class ChatClientGUI implements ActionListener {
 		// End input label
 		
 		/* Command region */
-		cTextField = new JTextField(20);
+		cTextField = new JTextField(15);
 		c.gridx = 2;
 		c.gridwidth = 4;
 		c.insets = new Insets(0, 0, 0, 0);
@@ -193,7 +191,7 @@ public class ChatClientGUI implements ActionListener {
 	
 	MouseAdapter whiteboardListener = new MouseAdapter () {
 		public void mouseClicked(MouseEvent e) {
-			if (chatClient.isConnect == false)
+			if (chatClient.isConnect == false || type.isEmpty())
 				return;
 
 			try {
@@ -212,6 +210,7 @@ public class ChatClientGUI implements ActionListener {
 			type = "";
 		}
 	};
+	
 	
 	MouseAdapter widgetListener = new MouseAdapter () {
 		public void mousePressed(MouseEvent e) {
@@ -268,7 +267,16 @@ public class ChatClientGUI implements ActionListener {
 		y = (max_y > 300)?max_y:300;
 
 		whiteboard.setPreferredSize(new Dimension(x, y));
-		boardScroll.revalidate();
+		whiteboard.revalidate();
+	}
+	
+	public void addBtn(String s) {
+		JButton btn = new JButton(s);
+		widgetList.add(s);
+		btnPanel.add(btn);
+		btnPanel.setPreferredSize(new Dimension(100, btnPanel.getPreferredSize().height + 50));
+		btn.addActionListener(btnListener);
+		btnPanel.revalidate();
 	}
 }
 
