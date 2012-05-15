@@ -122,7 +122,7 @@ public class ChatClientGUI implements ActionListener {
 		c.gridwidth = 1;
 		c.gridheight = 4;
 		frame.getContentPane().add(btnScroll, c);
-		// End four button
+		// End widget button
 
 		/* Chat region */
 		chatArea = new JTextArea("Username: ", 10, 15);

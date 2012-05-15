@@ -28,14 +28,32 @@ public class DoubleRectangleWidget extends Widget {
 		setBackground(outerBackground);
 		g.setColor(innerBackground);
 		g.fillRect((outerWidth - innerWidth) / 2, (outerHeight - innerHeight) / 2, innerWidth, innerHeight);
-		//setSize(outerWidth, outerHeight);
 	}
 	
+	@Override
 	public void destroy() {
 	}
 
 	@Override
-	public void parseCommand(String cmd) {		
+	public void parseCommand(String cmd) {
+		String[] tokens = cmd.split("( )+", 6);
+		if ( tokens.length != 6 ) return;
+		
+		Color inColor, outColor;
+		try {
+			inColor = Color.decode(tokens[0]);
+			innerWidth = Integer.parseInt(tokens[1]);
+			innerHeight = Integer.parseInt(tokens[2]);
+			outColor = Color.decode(tokens[3]);
+			outerWidth = Integer.parseInt(tokens[4]);
+			outerHeight = Integer.parseInt(tokens[5]);
+		} catch (Exception e) {
+			return;
+		}
+		
+		innerBackground = inColor;
+		outerBackground = outColor;
+		repaint();
 	}
 
 	@Override
