@@ -42,9 +42,9 @@ public class DoubleRectangleWidget extends Widget {
 		Color inColor, outColor;
 		try {
 			inColor = Color.decode(tokens[0]);
-			innerWidth = Integer.parseInt(tokens[1]);
-			innerHeight = Integer.parseInt(tokens[2]);
-			outColor = Color.decode(tokens[3]);
+			outColor = Color.decode(tokens[1]);
+			innerWidth = Integer.parseInt(tokens[2]);
+			innerHeight = Integer.parseInt(tokens[3]);
 			outerWidth = Integer.parseInt(tokens[4]);
 			outerHeight = Integer.parseInt(tokens[5]);
 		} catch (Exception e) {
@@ -59,7 +59,7 @@ public class DoubleRectangleWidget extends Widget {
 	@Override
 	public String toCommand() {
 		return String.format("%s %s %s %s %s %s", getHexColor(innerBackground), 
-				innerWidth, innerHeight, getHexColor(outerBackground), outerWidth, outerHeight);
+				getHexColor(outerBackground), innerWidth, innerHeight, outerWidth, outerHeight);
 	}
 	
 	private String getHexColor(Color cColor) {
