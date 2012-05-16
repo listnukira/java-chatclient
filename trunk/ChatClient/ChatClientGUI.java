@@ -7,6 +7,7 @@ import java.awt.event.*;
 import javax.swing.*;
 
 import widgets.*;
+import editor.*;
 
 public class ChatClientGUI implements ActionListener {
 	
@@ -39,7 +40,7 @@ public class ChatClientGUI implements ActionListener {
 		widgetList.add("Rectangle");
 		widgetList.add("Juggler");
 		widgetList.add("Circle");
-		buidUI();
+		buildUI();
 		cTextField.addActionListener(this);
 		whiteboard.addMouseListener(whiteboardListener);
 	}
@@ -86,11 +87,11 @@ public class ChatClientGUI implements ActionListener {
 		}
 	}
 
-	public void buidUI() {
+	public void buildUI() {
 		//frame.setSize(800, 600);
 		frame.setResizable(false);
 		frame.getContentPane().setLayout(new GridBagLayout());
-		frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);			
+		frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		GridBagConstraints c = new GridBagConstraints();
 
 		/* Whiteboard */
@@ -157,26 +158,6 @@ public class ChatClientGUI implements ActionListener {
 		frame.pack();
 		frame.setVisible(true);
 		cTextField.requestFocusInWindow();
-	}
-
-	static void usage() {
-		System.err.println("Usage: java ChatClient [host] [port]");
-		System.exit(1);
-	}
-	
-	public static void main(String args[]) {
-		/* Parse argument */
-		if (args.length != 2) {
-			usage();
-		}
-		
-		/* Start program */
-		try {
-			ChatClientGUI gui = new ChatClientGUI();
-			gui.chatClient = new ChatClient(args[0], Integer.parseInt(args[1]), gui);
-		} catch (IllegalArgumentException e) {
-			usage();
-		}
 	}
 
 	ActionListener btnListener = new ActionListener () {
@@ -274,9 +255,30 @@ public class ChatClientGUI implements ActionListener {
 		JButton btn = new JButton(s);
 		widgetList.add(s);
 		btnPanel.add(btn);
-		btnPanel.setPreferredSize(new Dimension(100, btnPanel.getPreferredSize().height + 50));
+		//btnPanel.setPreferredSize(new Dimension(100, btnPanel.getPreferredSize().height + 50));
 		btn.addActionListener(btnListener);
 		btnPanel.revalidate();
+	}
+	
+	static void usage() {
+		System.err.println("Usage: java ChatClient [host] [port]");
+		System.exit(1);
+	}
+	
+	public static void main(String args[]) {
+		/* Parse argument */
+		if (args.length != 2) {
+			usage();
+		}
+		
+		/* Start program */
+		try {
+			//ChatClientGUI gui = new ChatClientGUI();
+			//gui.chatClient = new ChatClient(args[0], Integer.parseInt(args[1]), gui);
+			//new WidgetEditPanel();
+		} catch (IllegalArgumentException e) {
+			usage();
+		}
 	}
 }
 
