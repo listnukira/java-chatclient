@@ -230,6 +230,14 @@ public class ChatClientGUI implements ActionListener {
 			whiteboard.scrollRectToVisible(e.getComponent().getBounds());
 			moveObjId = -1;
 		}
+		
+		/* Edit widget's property */
+		public void mouseClicked(MouseEvent e) {
+			if (e.getClickCount() == 2) {
+				//System.out.println(e.getSource().getClass());
+				new WidgetEditPanel(e.getSource());
+			}
+		}
 	};
 	
 	public void whiteboardResize() {
@@ -273,9 +281,9 @@ public class ChatClientGUI implements ActionListener {
 		
 		/* Start program */
 		try {
-			//ChatClientGUI gui = new ChatClientGUI();
-			//gui.chatClient = new ChatClient(args[0], Integer.parseInt(args[1]), gui);
-			//new WidgetEditPanel();
+			ChatClientGUI gui = new ChatClientGUI();
+			gui.chatClient = new ChatClient(args[0], Integer.parseInt(args[1]), gui);
+			//new WidgetEditPanel(new RectangleWidget());
 		} catch (IllegalArgumentException e) {
 			usage();
 		}
