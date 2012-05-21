@@ -114,12 +114,12 @@ public class ChatClient {
 				((Widget)object).addMouseMotionListener(gui.widgetListener);
 			}
 			/* Add new button */
-			String s = m.getType().substring(0, m.getType().length() - 6);
-			if (gui.widgetList.indexOf(s) == -1) {
-				gui.addBtn(s);
+			if (gui.widgetList.indexOf(m.getType()) == -1) {
+				gui.addBtn(m.getType());
 			}
 		} catch (ClassNotFoundException e) {
-			e.printStackTrace();
+			gui.chatArea.append(String.format("Error:<%s> is not found for %s", m.getType(), 
+					m.getContext()));
 		} catch (InstantiationException e) {
 			e.printStackTrace();
 		} catch (IllegalAccessException e) {
@@ -142,20 +142,23 @@ public class ChatClient {
 	 */
 	public void moveObj(String msg) {
 		String[] splited = msg.split(" ", 3);
+		int objID = Integer.parseInt(splited[0]);
+		int x = Integer.parseInt(splited[1]);
+		int y = Integer.parseInt(splited[2]);
 		
 		/* modify client side log */
 		for (Msg m: postLog) {
-			if (m.getMsgid() == Integer.parseInt(splited[0])) {
-				m.setX(Integer.parseInt(splited[1]));
-				m.setY(Integer.parseInt(splited[2]));
+			if (m.getMsgid() == objID) {
+				m.setX(x);
+				m.setY(y);
 				break;
 			}
 		}
 		
 		/* change object location */
 		for (Component j : gui.whiteboard.getComponents()) {
-			if (j.getName().equals(splited[0])) {
-				j.setLocation(Integer.parseInt(splited[1]), Integer.parseInt(splited[2]));
+			if ( Integer.parseInt(j.getName()) == objID ) {
+				j.setLocation(x, y);
 				break;
 			}
 		}
@@ -168,10 +171,11 @@ public class ChatClient {
 	 */
 	public void changeObj(String msg) {
 		String[] splited = msg.split(" ", 2);
+		int objID = Integer.parseInt(splited[0]);
 		
 		/* modify client side log */
 		for (Msg m: postLog) {
-			if (m.getMsgid() == Integer.parseInt(splited[0])) {
+			if (m.getMsgid() == objID) {
 				m.setMsg(String.format("%d %d %s", m.getX(), m.getY(), splited[1]));
 				break;
 			}
@@ -179,15 +183,14 @@ public class ChatClient {
 		
 		/* change object appearance */
 		for (Component j : gui.whiteboard.getComponents()) {
-			if (j.getName().equals(splited[0])) {
+			if ( Integer.parseInt(j.getName()) == objID ) {
 				((Widget) j).parseCommand(splited[1]);
-				System.out.println(((Widget) j).toCommand());
 				break;
 			}
 		}
 		
-		gui.whiteboard.repaint();
 		gui.whiteboardResize();
+		gui.whiteboard.repaint();
 	}
 	
 	public class ReceiveMsg implements Runnable {

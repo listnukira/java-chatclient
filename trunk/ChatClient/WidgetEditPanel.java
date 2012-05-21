@@ -22,7 +22,6 @@ public class WidgetEditPanel {
 	private JScrollPane scroll;
 	private Object object;
 	private int objID;
-	boolean isModify;
 	ArrayList<PropertyDescriptor>  propertyDescriptor;
 	
 	public WidgetEditPanel(ChatClientGUI gui, Object o, int objID) {
@@ -139,7 +138,9 @@ public class WidgetEditPanel {
 			if (oldValue.equals(newValue) == false) {
 				o = Convert.convert(newValue, pd.getPropertyType());
 				set_method.invoke(object, o);
-				isModify = true;
+				
+				gui.chatClient.sout.println(String.format("/change %d %s", objID, 
+						((Widget) object).toCommand()));
 				gui.whiteboard.revalidate();
 				gui.whiteboard.repaint();
 			}
@@ -171,7 +172,6 @@ public class WidgetEditPanel {
 
 				gui.chatClient.sout.println(String.format("/change %d %s", objID, 
 						((Widget) object).toCommand()));
-				
 				gui.whiteboard.revalidate();
 				gui.whiteboard.repaint();
 			} catch (Exception e) {
