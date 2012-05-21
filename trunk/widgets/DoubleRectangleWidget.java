@@ -6,23 +6,23 @@ import java.awt.Graphics;
 public class DoubleRectangleWidget extends Widget {
 
 	private static final long serialVersionUID = 1L;
-	private Integer innerWidth;
-	private Integer innerHeight;
-	private Integer outerWidth;
-	private Integer outerHeight;
+	private int innerWidth;
+	private int innerHeight;
+	private int outerWidth;
+	private int outerHeight;
 	private Color innerBackground;
 	private Color outerBackground;
 	
 	public DoubleRectangleWidget() {
 		innerBackground = Color.GREEN;
 		outerBackground = Color.RED;
-		innerWidth = Integer.valueOf(50);
-		innerHeight = Integer.valueOf(40);
-		outerWidth = Integer.valueOf(80);
-		outerHeight = Integer.valueOf(70);
+		innerWidth = 50;
+		innerHeight = 40;
+		outerWidth = 80;
+		outerHeight = 70;
 		setSize(outerWidth, outerHeight);
 	}
-	
+
 	public void paint(Graphics g) {
 		super.paint(g);
 		setBackground(outerBackground);
@@ -65,5 +65,53 @@ public class DoubleRectangleWidget extends Widget {
 	private String getHexColor(Color cColor) {
 		return String.format("#%02x%02x%02x", cColor.getRed(), 
 				cColor.getGreen(), cColor.getBlue());
+	}
+	
+	public int getInnerWidth() {
+		return innerWidth;
+	}
+
+	public void setInnerWidth(int innerWidth) {
+		this.innerWidth = innerWidth;
+	}
+
+	public int getInnerHeight() {
+		return innerHeight;
+	}
+
+	public void setInnerHeight(int innerHeight) {
+		this.innerHeight = innerHeight;
+	}
+
+	public int getOuterWidth() {
+		return outerWidth;
+	}
+
+	public void setOuterWidth(int outerWidth) {
+		this.outerWidth = outerWidth;
+	}
+
+	public int getOuterHeight() {
+		return outerHeight;
+	}
+
+	public void setOuterHeight(int outerHeight) {
+		this.outerHeight = outerHeight;
+	}
+
+	public Color getInnerBackground() {
+		return innerBackground;
+	}
+
+	public void setInnerBackground(Color innerBackground) {
+		this.innerBackground = innerBackground;
+	}
+
+	public Color getOuterBackground() {
+		return outerBackground;
+	}
+
+	public void setOuterBackground(Color outerBackground) {
+		this.outerBackground = outerBackground;
 	}
 }

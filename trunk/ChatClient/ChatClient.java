@@ -108,9 +108,11 @@ public class ChatClient {
 			((Widget)object).parseCommand(m.getWidgetMsg());
 			((Widget)object).setLocation(m.getX(), m.getY());
 			((Widget)object).setName(String.valueOf(m.getMsgid()));
-			((Widget)object).addMouseListener(gui.widgetListener);
-			((Widget)object).addMouseMotionListener(gui.widgetListener);
-			
+			/* permission setting, only owner add listener */
+			if (name.equals(m.getUsr())) {
+				((Widget)object).addMouseListener(gui.widgetListener);
+				((Widget)object).addMouseMotionListener(gui.widgetListener);
+			}
 			/* Add new button */
 			String s = m.getType().substring(0, m.getType().length() - 6);
 			if (gui.widgetList.indexOf(s) == -1) {
@@ -123,6 +125,7 @@ public class ChatClient {
 		} catch (IllegalAccessException e) {
 			e.printStackTrace();
 		}
+		
 		gui.whiteboard.add(((Widget)object));
 		gui.whiteboardResize();
 		gui.whiteboard.repaint();
@@ -140,6 +143,7 @@ public class ChatClient {
 	public void moveObj(String msg) {
 		String[] splited = msg.split(" ", 3);
 		
+		/* modify client side log */
 		for (Msg m: postLog) {
 			if (m.getMsgid() == Integer.parseInt(splited[0])) {
 				m.setX(Integer.parseInt(splited[1]));
@@ -148,6 +152,7 @@ public class ChatClient {
 			}
 		}
 		
+		/* change object location */
 		for (Component j : gui.whiteboard.getComponents()) {
 			if (j.getName().equals(splited[0])) {
 				j.setLocation(Integer.parseInt(splited[1]), Integer.parseInt(splited[2]));
@@ -155,6 +160,33 @@ public class ChatClient {
 			}
 		}
 		
+		gui.whiteboardResize();
+	}
+	
+	/*	msg ex:  2  aaa ttt ccc
+	 *			id   attribute
+	 */
+	public void changeObj(String msg) {
+		String[] splited = msg.split(" ", 2);
+		
+		/* modify client side log */
+		for (Msg m: postLog) {
+			if (m.getMsgid() == Integer.parseInt(splited[0])) {
+				m.setMsg(String.format("%d %d %s", m.getX(), m.getY(), splited[1]));
+				break;
+			}
+		}
+		
+		/* change object appearance */
+		for (Component j : gui.whiteboard.getComponents()) {
+			if (j.getName().equals(splited[0])) {
+				((Widget) j).parseCommand(splited[1]);
+				System.out.println(((Widget) j).toCommand());
+				break;
+			}
+		}
+		
+		gui.whiteboard.repaint();
 		gui.whiteboardResize();
 	}
 	
@@ -200,6 +232,8 @@ public class ChatClient {
 						rmPost(splitMsg[1]);
 					} else if (splitMsg[0].equals("/move")) {
 						moveObj(splitMsg[1]);
+					} else if (splitMsg[0].equals("/change")) {
+						changeObj(splitMsg[1]);
 					} else {}
 					
 					gui.chatArea.setCaretPosition(gui.chatArea.getDocument().getLength());
