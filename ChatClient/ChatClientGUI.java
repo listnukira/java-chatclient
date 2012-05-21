@@ -31,16 +31,15 @@ public class ChatClientGUI implements ActionListener {
 	
 	String type = "";
 	int moveObjId = -1;
-	int changeObjId = -1;
 	
 	ArrayList<String> widgetList = new ArrayList<String>();
 	
 	/* Constructor */
 	public ChatClientGUI() {
 		frame = new JFrame("ChatClient");
-		widgetList.add("Rectangle");
-		widgetList.add("Juggler");
-		widgetList.add("Circle");
+		widgetList.add("RectangleWidget");
+		widgetList.add("JugglerWidget");
+		widgetList.add("CircleWidget");
 		buildUI();
 		cTextField.addActionListener(this);
 		whiteboard.addMouseListener(whiteboardListener);
@@ -111,8 +110,8 @@ public class ChatClientGUI implements ActionListener {
 		
 		/* Widget button panel */
 		btnPanel = new JPanel(new GridLayout(0, 1), true);
-		btnPanel.setPreferredSize(new Dimension(100, 150));
 		btnScroll = new JScrollPane(btnPanel);
+		btnScroll.setPreferredSize(new Dimension(100, 150));
 		
 		for (String s : widgetList) {
 			JButton btn = new JButton(s);
@@ -167,7 +166,7 @@ public class ChatClientGUI implements ActionListener {
 				return;
 			
 			JButton b = (JButton) e.getSource();
-			type = b.getText() + "Widget";
+			type = b.getText();
 		}
 	};
 	
@@ -179,8 +178,9 @@ public class ChatClientGUI implements ActionListener {
 			try {
 				Class<?> c = Class.forName("widgets." + type);
 				Object object = c.newInstance();
-				chatClient.sout.println(String.format("/post %s %d %d %s", type, 
-						e.getX(), e.getY(), ((Widget)object).toCommand()));
+				//chatClient.sout.println(String.format("/post %s %d %d %s", type, 
+				//		e.getX(), e.getY(), ((Widget)object).toCommand()));
+				
 			} catch (ClassNotFoundException ee) {
 				ee.printStackTrace();
 			} catch (InstantiationException ee) {
@@ -229,17 +229,8 @@ public class ChatClientGUI implements ActionListener {
 		public void mouseClicked(MouseEvent e) {
 			if (e.getClickCount() != 2) return;
 
-			changeObjId = Integer.parseInt(e.getComponent().getName());
+			int changeObjId = Integer.parseInt(e.getComponent().getName());
 			new WidgetEditPanel(ChatClientGUI.this, e.getSource(), changeObjId);
-
-			/*
-			if (widgetEdit.isModify == true) {
-				changeObjId = Integer.parseInt(e.getComponent().getName());
-				Widget o = (Widget) e.getComponent();
-				chatClient.sout.println(String.format("/change %d %s", changeObjId, o.toCommand()));
-				System.out.println(String.format("/change %d %s", changeObjId, o.toCommand()));
-			}
-			*/
 		}
 	};
 	
