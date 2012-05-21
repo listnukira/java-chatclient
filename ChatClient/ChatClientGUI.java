@@ -31,6 +31,7 @@ public class ChatClientGUI implements ActionListener {
 	
 	String type = "";
 	int moveObjId = -1;
+	int changeObjId = -1;
 	
 	ArrayList<String> widgetList = new ArrayList<String>();
 	
@@ -195,19 +196,13 @@ public class ChatClientGUI implements ActionListener {
 	
 	MouseAdapter widgetListener = new MouseAdapter () {
 		public void mousePressed(MouseEvent e) {
-			for (Msg m : chatClient.postLog) {
-				if (m.getMsgid() == Integer.parseInt(e.getComponent().getName()) && 
-					chatClient.name.equals(m.getUsr())) {
-					shift_x = e.getX();
-					shift_y = e.getY();
-					moveObjId = m.getMsgid();
-				}
-			}
+			moveObjId = Integer.parseInt(e.getComponent().getName());
+			shift_x = e.getX();
+			shift_y = e.getY();
 		}
 		
 		public void mouseDragged(MouseEvent e) {
-			if (moveObjId == -1)
-				return;
+			if (moveObjId == -1) return;
 			
 			int x = e.getComponent().getX() + e.getX() - shift_x;
 			int y = e.getComponent().getY() + e.getY() - shift_y;
@@ -218,8 +213,7 @@ public class ChatClientGUI implements ActionListener {
 		}
 		
 		public void mouseReleased(MouseEvent e) {
-			if (moveObjId == -1)
-				return;
+			if (moveObjId == -1) return;
 			
 			int x = e.getComponent().getX() + e.getX() - shift_x;
 			int y = e.getComponent().getY() + e.getY() - shift_y;
@@ -233,10 +227,19 @@ public class ChatClientGUI implements ActionListener {
 		
 		/* Edit widget's property */
 		public void mouseClicked(MouseEvent e) {
-			if (e.getClickCount() == 2) {
-				//System.out.println(e.getSource().getClass());
-				new WidgetEditPanel(e.getSource());
+			if (e.getClickCount() != 2) return;
+
+			changeObjId = Integer.parseInt(e.getComponent().getName());
+			new WidgetEditPanel(ChatClientGUI.this, e.getSource(), changeObjId);
+
+			/*
+			if (widgetEdit.isModify == true) {
+				changeObjId = Integer.parseInt(e.getComponent().getName());
+				Widget o = (Widget) e.getComponent();
+				chatClient.sout.println(String.format("/change %d %s", changeObjId, o.toCommand()));
+				System.out.println(String.format("/change %d %s", changeObjId, o.toCommand()));
 			}
+			*/
 		}
 	};
 	
@@ -263,7 +266,6 @@ public class ChatClientGUI implements ActionListener {
 		JButton btn = new JButton(s);
 		widgetList.add(s);
 		btnPanel.add(btn);
-		//btnPanel.setPreferredSize(new Dimension(100, btnPanel.getPreferredSize().height + 50));
 		btn.addActionListener(btnListener);
 		btnPanel.revalidate();
 	}
@@ -283,7 +285,6 @@ public class ChatClientGUI implements ActionListener {
 		try {
 			ChatClientGUI gui = new ChatClientGUI();
 			gui.chatClient = new ChatClient(args[0], Integer.parseInt(args[1]), gui);
-			//new WidgetEditPanel(new RectangleWidget());
 		} catch (IllegalArgumentException e) {
 			usage();
 		}
