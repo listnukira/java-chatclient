@@ -1,10 +1,7 @@
 package ChatClient;
 
 import java.awt.*;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
-import java.awt.event.FocusAdapter;
-import java.awt.event.FocusEvent;
+import java.awt.event.*;
 import java.beans.*;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
@@ -22,11 +19,14 @@ public class WidgetEditPanel {
 	private JPanel panel;
 	private JScrollPane scroll;
 	private JButton okBtn;
+	
 	private Object object;
+	private boolean isOKClicked;
 	private int objID;
 	private int x;
 	private int y;
 	ArrayList<PropertyDescriptor>  propertyDescriptor = new ArrayList<PropertyDescriptor>();
+	ArrayList<Object> oldValue = new ArrayList<Object>();
 	
 	/* constructor for exist widget */
 	public WidgetEditPanel(ChatClientGUI gui, Object o, int objID) {
@@ -50,6 +50,7 @@ public class WidgetEditPanel {
 	
 	public void buildUI() {
 		editGUI = new JFrame("Widget editor panel");
+		editGUI.addWindowListener(windowListener); // if close, reset oldvalue
 		editGUI.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
 		
 		panel = new JPanel(new GridLayout(0, 2), true);
@@ -77,10 +78,11 @@ public class WidgetEditPanel {
 			/* get member value which has both read and write method */
 			if (get_method != null && set_method != null) {
 				String field_type = pd.getPropertyType().getSimpleName();
-				/* if member's type is primitive or string, using textfield */
-				if (pd.getPropertyType().isPrimitive() || field_type.equals("String")) {
-					try {
-						Object o = get_method.invoke(object);
+				try {
+					Object o = get_method.invoke(object);
+					
+					/* if member's type is primitive or string, using textfield */
+					if (pd.getPropertyType().isPrimitive() || field_type.equals("String")) {
 						if (o != null) {
 							value = o.toString();
 						}
@@ -88,27 +90,26 @@ public class WidgetEditPanel {
 						JTextField text = new JTextField(value);
 						text.addActionListener(textListener);
 						text.addFocusListener(textFocusListener);
-						
 						text.setName(String.valueOf(propertyDescriptor.size()));
-						propertyDescriptor.add(pd);
+						
 						panel.add(new JLabel(field_name));
 						panel.add(text);
-					} catch (Exception e) {
-						e.printStackTrace();
-					}
-				} else {
-					try {
+					} else {
 						Class.forName("editor." + field_type + "Editor");
 						
 						JButton btn = new JButton(field_type);
 						btn.addActionListener(btnListener);
-						
 						btn.setName(String.valueOf(propertyDescriptor.size()));
-						propertyDescriptor.add(pd);
+
 						panel.add(new JLabel(field_name));
 						panel.add(btn);
-					} catch (ClassNotFoundException e) {
 					}
+					propertyDescriptor.add(pd);
+					oldValue.add(o);
+				} catch (ClassNotFoundException e) {
+					// do nothing
+				} catch (Exception e) {
+					e.printStackTrace();
 				}
 			}
 		}
@@ -125,16 +126,14 @@ public class WidgetEditPanel {
 	FocusAdapter textFocusListener = new FocusAdapter() {
 		public void focusLost(FocusEvent f) {
 			JTextField text = (JTextField) f.getSource();
-			PropertyDescriptor pd = propertyDescriptor.get(Integer.valueOf(text.getName()));
-			detectModify(pd, text);
+			detectModify(Integer.valueOf(text.getName()), text);
 		}
 	};
 	
 	ActionListener textListener = new ActionListener() {
 		public void actionPerformed(ActionEvent action) {
 			JTextField text = (JTextField) action.getSource();
-			PropertyDescriptor pd = propertyDescriptor.get(Integer.valueOf(text.getName()));
-			detectModify(pd, text);
+			detectModify(Integer.valueOf(text.getName()), text);
 		}
 	};
 	
@@ -147,6 +146,7 @@ public class WidgetEditPanel {
 	
 	ActionListener okbtnListener = new ActionListener() {
 		public void actionPerformed(ActionEvent action) {
+			/* objID = -1 when create widget */
 			if (objID == -1) {
 				String widgeType = object.getClass().getSimpleName();
 				gui.chatClient.sout.println(String.format("/post %s %d %d %s", widgeType, 
@@ -155,31 +155,47 @@ public class WidgetEditPanel {
 				gui.chatClient.sout.println(String.format("/change %d %s", objID, 
 				((Widget) object).toCommand()));
 			}
+			
+			isOKClicked = true;
+			editGUI.setVisible(false);
+			editGUI.dispose();
 		}
 	};
 	
-	public void detectModify(PropertyDescriptor pd, JTextField text) {
-		Method get_method = pd.getReadMethod();
+	/* if close window, reset original value */
+	WindowAdapter windowListener = new WindowAdapter() {
+		public void windowClosed(WindowEvent e) {
+			if (objID == -1 || isOKClicked) return;
+			
+			try {
+				for (int i = 0; i < oldValue.size(); ++i) {
+					Method set_method = propertyDescriptor.get(i).getWriteMethod();
+					set_method.invoke(object, oldValue.get(i));
+				}
+			} catch (Exception exception) {
+				exception.getStackTrace();
+			}
+
+			gui.whiteboard.revalidate();
+			gui.whiteboard.repaint();
+		}
+	};
+	
+	public void detectModify(int idx, JTextField text) {
+		PropertyDescriptor pd = propertyDescriptor.get(idx);
 		Method set_method = pd.getWriteMethod();
-		String oldValue = "", newValue = text.getText();
+		String textValue = text.getText();
 
 		try {
-			Object o = get_method.invoke(object);
-			if (o != null) {
-				oldValue = o.toString();
-			}
-			/* value has been modified */
-			if (oldValue.equals(newValue) == false) {
-				o = Convert.convert(newValue, pd.getPropertyType());
+			Object o = Convert.convert(textValue, pd.getPropertyType());
+			if (o.equals(oldValue.get(idx)) == false) {
 				set_method.invoke(object, o);
-				
-				//gui.chatClient.sout.println(String.format("/change %d %s", objID, 
-				//		((Widget) object).toCommand()));
+
 				gui.whiteboard.revalidate();
 				gui.whiteboard.repaint();
 			}
 		} catch (Exception e) {
-			text.setText(oldValue);
+			text.setText(textValue);
 		}
 	}
 	
@@ -204,8 +220,6 @@ public class WidgetEditPanel {
 				reto = editor.returnValue(pd.getReadMethod().invoke(object));
 				pd.getWriteMethod().invoke(object, reto);
 
-				//gui.chatClient.sout.println(String.format("/change %d %s", objID, 
-				//		((Widget) object).toCommand()));
 				gui.whiteboard.revalidate();
 				gui.whiteboard.repaint();
 			} catch (Exception e) {
