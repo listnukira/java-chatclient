@@ -178,8 +178,9 @@ public class ChatClientGUI implements ActionListener {
 			try {
 				Class<?> c = Class.forName("widgets." + type);
 				Object object = c.newInstance();
-				//chatClient.sout.println(String.format("/post %s %d %d %s", type, 
-				//		e.getX(), e.getY(), ((Widget)object).toCommand()));
+				//new WidgetEditPanel(ChatClientGUI.this, e.getSource(), x, y);
+				chatClient.sout.println(String.format("/post %s %d %d %s", type, 
+						e.getX(), e.getY(), ((Widget)object).toCommand()));
 				
 			} catch (ClassNotFoundException ee) {
 				ee.printStackTrace();
