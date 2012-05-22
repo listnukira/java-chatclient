@@ -6,6 +6,7 @@ import java.awt.event.ActionListener;
 import java.awt.event.FocusAdapter;
 import java.awt.event.FocusEvent;
 import java.beans.*;
+import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.util.ArrayList;
 
@@ -20,13 +21,34 @@ public class WidgetEditPanel {
 	private JFrame editGUI;
 	private JPanel panel;
 	private JScrollPane scroll;
+	private JButton okBtn;
 	private Object object;
 	private int objID;
-	ArrayList<PropertyDescriptor>  propertyDescriptor;
+	private int x;
+	private int y;
+	ArrayList<PropertyDescriptor>  propertyDescriptor = new ArrayList<PropertyDescriptor>();
 	
+	/* constructor for exist widget */
 	public WidgetEditPanel(ChatClientGUI gui, Object o, int objID) {
 		this.gui = gui;
 		this.objID = objID;
+		this.object = o;
+		this.x = -1;
+		this.y = -1;
+		buildUI();
+	}
+	
+	/* constructor for non-exist widget */
+	public WidgetEditPanel(ChatClientGUI gui, Object o, int x, int y) {
+		this.gui = gui;
+		this.objID = -1;
+		this.object = o;
+		this.x = x;
+		this.y = y;
+		buildUI();
+	}
+	
+	public void buildUI() {
 		editGUI = new JFrame("Widget editor panel");
 		editGUI.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
 		
@@ -34,15 +56,10 @@ public class WidgetEditPanel {
 		scroll = new JScrollPane(panel);
 		scroll.setPreferredSize(new Dimension(450, 500));
 		
-		this.object = o;
-		propertyDescriptor = new ArrayList<PropertyDescriptor>();
-		buildUI();
-	}
-	
-	public void buildUI() {
 		panel.add(new JLabel("Property"));
 		panel.add(new JLabel("Input"));
 		
+		/* get bean info */
 		BeanInfo info = null;
 		try {
 			info = Introspector.getBeanInfo(object.getClass());
@@ -96,7 +113,11 @@ public class WidgetEditPanel {
 			}
 		}
 		
-		editGUI.getContentPane().add(scroll);
+		okBtn = new JButton("OK");
+		okBtn.addActionListener(okbtnListener);
+		
+		editGUI.getContentPane().add(BorderLayout.SOUTH, okBtn);
+		editGUI.getContentPane().add(BorderLayout.CENTER, scroll);
 		editGUI.pack();
 		editGUI.setVisible(true);
 	}
@@ -124,6 +145,19 @@ public class WidgetEditPanel {
 		}
 	};
 	
+	ActionListener okbtnListener = new ActionListener() {
+		public void actionPerformed(ActionEvent action) {
+			if (objID == -1) {
+				String widgeType = object.getClass().getSimpleName();
+				gui.chatClient.sout.println(String.format("/post %s %d %d %s", widgeType, 
+						x, y, ((Widget) object).toCommand()));
+			} else {
+				gui.chatClient.sout.println(String.format("/change %d %s", objID, 
+				((Widget) object).toCommand()));
+			}
+		}
+	};
+	
 	public void detectModify(PropertyDescriptor pd, JTextField text) {
 		Method get_method = pd.getReadMethod();
 		Method set_method = pd.getWriteMethod();
@@ -139,8 +173,8 @@ public class WidgetEditPanel {
 				o = Convert.convert(newValue, pd.getPropertyType());
 				set_method.invoke(object, o);
 				
-				gui.chatClient.sout.println(String.format("/change %d %s", objID, 
-						((Widget) object).toCommand()));
+				//gui.chatClient.sout.println(String.format("/change %d %s", objID, 
+				//		((Widget) object).toCommand()));
 				gui.whiteboard.revalidate();
 				gui.whiteboard.repaint();
 			}
@@ -170,8 +204,8 @@ public class WidgetEditPanel {
 				reto = editor.returnValue(pd.getReadMethod().invoke(object));
 				pd.getWriteMethod().invoke(object, reto);
 
-				gui.chatClient.sout.println(String.format("/change %d %s", objID, 
-						((Widget) object).toCommand()));
+				//gui.chatClient.sout.println(String.format("/change %d %s", objID, 
+				//		((Widget) object).toCommand()));
 				gui.whiteboard.revalidate();
 				gui.whiteboard.repaint();
 			} catch (Exception e) {
