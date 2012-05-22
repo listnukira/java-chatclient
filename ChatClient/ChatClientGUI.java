@@ -6,9 +6,6 @@ import java.awt.*;
 import java.awt.event.*;
 import javax.swing.*;
 
-import widgets.*;
-import editor.*;
-
 public class ChatClientGUI implements ActionListener {
 	
 	private JFrame frame;
@@ -176,12 +173,8 @@ public class ChatClientGUI implements ActionListener {
 				return;
 
 			try {
-				Class<?> c = Class.forName("widgets." + type);
-				Object object = c.newInstance();
-				//new WidgetEditPanel(ChatClientGUI.this, e.getSource(), x, y);
-				chatClient.sout.println(String.format("/post %s %d %d %s", type, 
-						e.getX(), e.getY(), ((Widget)object).toCommand()));
-				
+				Object object = Class.forName("widgets." + type).newInstance();
+				new WidgetEditPanel(ChatClientGUI.this, object, e.getX(), e.getY());
 			} catch (ClassNotFoundException ee) {
 				ee.printStackTrace();
 			} catch (InstantiationException ee) {
@@ -282,4 +275,3 @@ public class ChatClientGUI implements ActionListener {
 		}
 	}
 }
-
