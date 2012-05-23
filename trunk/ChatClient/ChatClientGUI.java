@@ -49,8 +49,8 @@ public class ChatClientGUI implements ActionListener {
 		cTextField.requestFocusInWindow();
 
 		if (input.startsWith("/connect")) {
-			chatClient.logout.println(input);
-			if (chatClient.isConnect == true) {
+			if (chatClient.isConnect) {
+				chatClient.logout.println(input);
 				chatClient.sout.println("/leave");
 			}
 
@@ -58,23 +58,32 @@ public class ChatClientGUI implements ActionListener {
 			chatClient.reset(splited[1], Integer.parseInt(splited[2]));
 			return;
 		}
+		
+		if (chatClient.isIdle) return;
 
 		/* first input name, not connect */
 		if (chatClient.nameIsReady == false && chatClient.isConnect == false) {
 			chatClient.name = input;
-			chatClient.nameIsReady = true;
-			chatClient.connectToServer();
+			chatArea.append(input);
+			chatArea.append("\n");
+			if (chatClient.connectToServer() == 0) {
+				chatClient.nameIsReady = true;
+				chatClient.sout.println(input);
+			} else {
+				chatClient.isIdle = true;
+			}
+			return;
 		}
 		
 		/* is connecting and name not checked */
-		if (chatClient.nameChecked == false) {
-				chatClient.sout.println(input);
-				chatClient.name = input;
-				chatArea.append(input);
-				chatArea.append("\n");
+		if (chatClient.nameChecked == false && chatClient.isConnect == true) {
+			chatClient.sout.println(input);
+			chatClient.name = input;
+			chatArea.append(input);
+			chatArea.append("\n");
 		} else if (chatClient.isConnect == true) {
 			chatClient.logout.println(input);
-			if (input.equals("/showPost")) {
+			if (input.equals("/showpost")) {
 				chatClient.showPostLog();
 			} else {
 				chatClient.sout.println(input);
