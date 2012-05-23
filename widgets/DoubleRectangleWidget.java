@@ -25,6 +25,7 @@ public class DoubleRectangleWidget extends Widget {
 
 	public void paint(Graphics g) {
 		super.paint(g);
+		setSize(outerWidth, outerHeight);
 		setBackground(outerBackground);
 		g.setColor(innerBackground);
 		g.fillRect((outerWidth - innerWidth) / 2, (outerHeight - innerHeight) / 2, innerWidth, innerHeight);

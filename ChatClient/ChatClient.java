@@ -23,6 +23,7 @@ public class ChatClient {
 	volatile boolean nameIsReady = false;
 	volatile boolean nameChecked = false;
 	volatile boolean isConnect = false;
+	volatile boolean isIdle = false;
 	ArrayList<Msg> postLog = new ArrayList<Msg>();
 	PrintWriter login = null;
 	PrintWriter logout = null;
@@ -39,6 +40,7 @@ public class ChatClient {
 		nameIsReady = false;
 		nameChecked = false;
 		isConnect = false;
+		isIdle = false;
 		postLog.clear();
 
 		gui.clabel.setText("Input Username: ");
@@ -61,7 +63,7 @@ public class ChatClient {
 			return 0;
 		} catch (IOException e) {
 			System.err.println("The server does not exist. Please type different domain and/or port.");
-			System.err.println(e);
+			gui.chatArea.append("The server does not exist. Please type different domain and/or port.\n");
 			return -1;
 		}
 	}
@@ -120,6 +122,7 @@ public class ChatClient {
 		} catch (ClassNotFoundException e) {
 			gui.chatArea.append(String.format("Error:<%s> is not found for %s", m.getType(), 
 					m.getContext()));
+			return;
 		} catch (InstantiationException e) {
 			e.printStackTrace();
 		} catch (IllegalAccessException e) {
@@ -244,6 +247,7 @@ public class ChatClient {
 
 				/* close connection */
 				isConnect = false;
+				isIdle = true;
 				sin.close();
 				sout.close();
 				socket.close();
