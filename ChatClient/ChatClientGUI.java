@@ -85,6 +85,10 @@ public class ChatClientGUI implements ActionListener {
 			chatClient.logout.println(input);
 			if (input.equals("/showpost")) {
 				chatClient.showPostLog();
+			} else if (input.equals("/showtask")) {
+				chatClient.showTaskLog();
+			} else if (input.startsWith("/task")) {
+				chatClient.parseTask(input);
 			} else {
 				chatClient.sout.println(input);
 			}
