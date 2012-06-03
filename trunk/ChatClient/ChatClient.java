@@ -6,9 +6,8 @@ import java.awt.Component;
 import java.awt.Dimension;
 import java.io.*;
 
-import javax.swing.JButton;
-
 import widgets.*;
+import task.*;
 
 public class ChatClient {
 	
@@ -25,6 +24,7 @@ public class ChatClient {
 	volatile boolean isConnect = false;
 	volatile boolean isIdle = false;
 	ArrayList<Msg> postLog = new ArrayList<Msg>();
+	Map<String, Task> taskPool = new LinkedHashMap<String, Task>();
 	PrintWriter login = null;
 	PrintWriter logout = null;
 
@@ -140,6 +140,39 @@ public class ChatClient {
 		}
 	}
 
+	public void showTaskLog() {
+		for (String key: taskPool.keySet()) {
+			gui.chatArea.append(String.format("Task ID: %s, Task Type: %s\n", key, 
+					taskPool.get(key).getClass().getSimpleName()));
+		}
+	}
+	
+	/*	msg ex:  /task t1 Pi 3
+	 *			 cmd id type arg
+	 */
+	public void parseTask(String msg) {
+		String[] splited = msg.split(" ", 4);
+		
+		if (taskPool.containsKey(splited[1])) {
+			gui.chatArea.append(String.format("Error: tid: %s is used.\n", splited[1]));
+			return;
+		}
+		
+		try {
+			Class<?> c = Class.forName("task." + splited[2]);
+			Task o = (Task) c.newInstance();
+			o.init(splited[3]);
+			taskPool.put(splited[1], o);
+		} catch (ClassNotFoundException e) {
+			gui.chatArea.append(String.format("Error: TaskType %s is not found.\n", splited[2]));
+			return;
+		} catch (InstantiationException e) {
+			e.printStackTrace();
+		} catch (IllegalAccessException e) {
+			e.printStackTrace();
+		}
+	}
+	
 	/*	msg ex:  2  10  20
 	 *			id   x   y 
 	 */
