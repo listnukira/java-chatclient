@@ -1,0 +1,7 @@
+/* AUTOMATICALLY GENERATED ON Wed Jun 06 02:30:24 CST 2012*/
+/* DO NOT EDIT */
+
+grant {
+  permission java.security.AllPermission "127.0.0.1", "accept, connect, listen, resolve";
+};
+

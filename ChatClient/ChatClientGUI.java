@@ -1,6 +1,7 @@
 package ChatClient;
 
 import java.io.*;
+import java.rmi.RMISecurityManager;
 import java.util.ArrayList;
 import java.awt.*;
 import java.awt.event.*;
@@ -88,7 +89,9 @@ public class ChatClientGUI implements ActionListener {
 			} else if (input.equals("/showtask")) {
 				chatClient.showTaskLog();
 			} else if (input.startsWith("/task")) {
-				chatClient.parseTask(input);
+				chatClient.createTask(input);
+			} else if (input.startsWith("/rexe")) {
+				chatClient.rexeTask(input);
 			} else {
 				chatClient.sout.println(input);
 			}
@@ -277,6 +280,10 @@ public class ChatClientGUI implements ActionListener {
 		/* Parse argument */
 		if (args.length != 2) {
 			usage();
+		}
+		
+		if (System.getSecurityManager() == null) {
+			System.setSecurityManager(new RMISecurityManager());
 		}
 		
 		/* Start program */

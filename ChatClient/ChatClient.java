@@ -1,5 +1,6 @@
 package ChatClient;
 
+import java.rmi.Naming;
 import java.util.*;
 import java.net.*;
 import java.awt.Component;
@@ -150,7 +151,7 @@ public class ChatClient {
 	/*	msg ex:  /task t1 Pi 3
 	 *			 cmd id type arg
 	 */
-	public void parseTask(String msg) {
+	public void createTask(String msg) {
 		String[] splited = msg.split(" ", 4);
 		
 		if (taskPool.containsKey(splited[1])) {
@@ -163,12 +164,28 @@ public class ChatClient {
 			Task o = (Task) c.newInstance();
 			o.init(splited[3]);
 			taskPool.put(splited[1], o);
+			gui.chatArea.append(String.format("Task ID: %s, Task Type: %s\n", splited[1], splited[2]));
 		} catch (ClassNotFoundException e) {
 			gui.chatArea.append(String.format("Error: TaskType %s is not found.\n", splited[2]));
 			return;
 		} catch (InstantiationException e) {
 			e.printStackTrace();
 		} catch (IllegalAccessException e) {
+			e.printStackTrace();
+		}
+	}
+	
+	/*	msg ex:  /rexe tid [user]
+	 */
+	public void rexeTask(String msg) {
+		String[] splited = msg.split(" ", 3);
+		
+		try {
+			Compute task = (Compute) Naming.lookup("rmi://localhost/@SERVER");
+			Pi p = new Pi();
+			p.init("6");
+			System.out.println(task.executeTask(p, splited[2]));
+		} catch (Exception e) {
 			e.printStackTrace();
 		}
 	}
