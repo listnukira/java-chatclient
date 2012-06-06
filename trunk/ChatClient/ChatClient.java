@@ -1,6 +1,8 @@
 package ChatClient;
 
 import java.rmi.Naming;
+import java.rmi.registry.LocateRegistry;
+import java.rmi.registry.Registry;
 import java.util.*;
 import java.net.*;
 import java.awt.Component;
@@ -8,6 +10,7 @@ import java.awt.Dimension;
 import java.io.*;
 
 import widgets.*;
+import rmi.*;
 import task.*;
 
 public class ChatClient {
@@ -149,7 +152,7 @@ public class ChatClient {
 	}
 	
 	/*	msg ex:  /task t1 Pi 3
-	 *			 cmd id type arg
+	 *			  cmd id type arg
 	 */
 	public void createTask(String msg) {
 		String[] splited = msg.split(" ", 4);
@@ -180,11 +183,17 @@ public class ChatClient {
 	public void rexeTask(String msg) {
 		String[] splited = msg.split(" ", 3);
 		
+		if (splited.length == 1) {
+			return;
+		}
+		
+		String tid = splited[1];
+		String target = (splited.length == 3) ? splited[2] : null;
+		
 		try {
-			Compute task = (Compute) Naming.lookup("rmi://localhost/@SERVER");
-			Pi p = new Pi();
-			p.init("6");
-			System.out.println(task.executeTask(p, splited[2]));
+			Compute remoteCompute = (Compute) Naming.lookup("rmi://localhost:1099/@SERVER");
+			Task task = (Task) taskPool.get(tid);
+			System.out.println(remoteCompute.executeTask(task, target));
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
@@ -271,6 +280,11 @@ public class ChatClient {
 					gui.chatArea.setCaretPosition(gui.chatArea.getDocument().getLength());
 				}
 
+				/* when name checked, registry client side rmi */
+				Compute computeEngine = (Compute) new ComputeEngine();
+				Registry registry = LocateRegistry.getRegistry(1099);
+				registry.rebind(name, computeEngine);
+				
 				/* read server's response */
 				while ((response = sin.readLine()) != null) {
 					login.println(response);
