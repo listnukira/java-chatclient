@@ -13,8 +13,6 @@ public class GridifyPrime implements Task {
 		this.init(init_str);
 	}
 	
-	//long check_prime(long prime, long min, long max);
-	
 	@Gridify(mapper="primeMapper", reducer="primeReducer")
 	public Object execute() {
 		if (min < 2)
