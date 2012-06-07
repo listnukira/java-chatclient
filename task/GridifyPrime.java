@@ -13,7 +13,7 @@ public class GridifyPrime implements Task {
 		this.init(init_str);
 	}
 	
-	long check_prime(long prime, long min, long max);
+	//long check_prime(long prime, long min, long max);
 	
 	@Gridify(mapper="primeMapper", reducer="primeReducer")
 	public Object execute() {
@@ -24,11 +24,11 @@ public class GridifyPrime implements Task {
 				return divisor;
 			}
 		}
-		return 11;
+		return 1L;
 	}
 	
 	public Vector<GridifyPrime> primeMapper(int num) {
-		Vector<GridifyPrime> tasks = new Vector<GridifyPrime>();
+		Vector<GridifyPrime> tasks = new Vector<GridifyPrime>(num);
 		long diff = prime / num;
 		long p = 2;
 		while (p < prime) {
@@ -42,8 +42,8 @@ public class GridifyPrime implements Task {
 		return tasks;
 	}
 	
-	public Long primeReducer(Vector<Long> results) {
-		for (Long result : results) {
+	public Long primeReducer(Vector<Long> mapped_results) {
+		for (Long result : mapped_results) {
 			if (result != 1) return result;
 		}
 		return 1L;
