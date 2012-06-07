@@ -1,0 +1,6 @@
+//grant codeBase "file:/F:/workspace/05RMIClient/bin/" {
+	//permission java.security.AllPermission;
+//};
+grant {
+	permission java.security.AllPermission; 
+};
