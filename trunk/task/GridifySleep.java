@@ -32,11 +32,10 @@ public class GridifySleep implements Task {
 	public Vector<GridifySleep> primeMapper(int num) {
 		Vector<GridifySleep> tasks = new Vector<GridifySleep>(num);
 		long period = ms / num;
-		long remider = ms % num;
 		
 		for (int i = 0; i < num; ++i) {
 			if (i + 1 == num) {
-				tasks.add(new GridifySleep(String.format("%d", remider)));
+				tasks.add(new GridifySleep(String.format("%d", ms - (i * period))));
 			} else {
 				tasks.add(new GridifySleep(String.format("%d", period * (i + 1))));
 			}
