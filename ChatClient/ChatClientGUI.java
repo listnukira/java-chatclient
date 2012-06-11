@@ -91,9 +91,7 @@ public class ChatClientGUI implements ActionListener {
 			} else if (input.startsWith("/task")) {
 				chatClient.createTask(input);
 			} else if (input.startsWith("/rexe")) {
-				chatClient.rexeTask(input);
-			} else if (input.startsWith("/rexe")) {
-				
+				chatClient.rexeTask(input);				
 			} else {
 				chatClient.sout.println(input);
 			}

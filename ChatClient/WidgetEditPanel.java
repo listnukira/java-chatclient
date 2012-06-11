@@ -78,9 +78,6 @@ public class WidgetEditPanel {
 			/* get member value which has both read and write method */
 			if (get_method != null && set_method != null) {
 				String field_type = pd.getPropertyType().getSimpleName();
-				if (field_name.startsWith("wb") == false) {
-					continue;
-				}
 				try {
 					Object o = get_method.invoke(object);
 					

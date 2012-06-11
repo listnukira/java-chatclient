@@ -19,10 +19,10 @@ public class ChatClient {
 	private int port = 0;
 	
 	ChatClientGUI gui = null;
-	volatile String name;
+	public static volatile String name;
 	Socket socket = null;
-	BufferedReader sin = null;
-	PrintWriter sout = null;
+	public static BufferedReader sin = null;
+	public static PrintWriter sout = null;
 	volatile boolean nameIsReady = false;
 	volatile boolean nameChecked = false;
 	volatile boolean isConnect = false;
@@ -190,12 +190,11 @@ public class ChatClient {
 		String tid = splited[1];
 		String target = (splited.length == 3) ? splited[2] : null;
 		
-		try {
-			Compute remoteCompute = (Compute) Naming.lookup("rmi://localhost:1099/@SERVER");
-			Task task = (Task) taskPool.get(tid);
-			System.out.println(remoteCompute.executeTask(task, target));
-		} catch (Exception e) {
-			e.printStackTrace();
+		Task task = (Task) taskPool.get(tid);
+		if (task == null) {
+			gui.chatArea.append(String.format("Task ID %s is not exist\n", tid));
+		} else {
+			new rexeThread(task, target).start();
 		}
 	}
 	
@@ -328,6 +327,28 @@ public class ChatClient {
 				System.err.println("IOException in run(): " + e);
 			}
 		}
+	}
+	
+	/* client using another thread run RMI */
+	public class rexeThread extends Thread {
+		private Task task;
+		private String target;
+		public rexeThread(Task task, String target) {
+			this.task = task;
+			this.target = target;
+		}
+		
+		@Override
+		public void run() {
+			try {			
+				Compute remoteCompute = (Compute) Naming.lookup("rmi://localhost:1099/@SERVER");
+				String result = remoteCompute.executeTask(task, target).toString();
+				gui.chatArea.append(String.format("%s\n", result));
+			} catch (Exception e) {
+				e.printStackTrace();
+			}
+		}
 		
 	}
 }
+
